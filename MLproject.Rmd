@@ -1,6 +1,8 @@
 ---
 title: "Activity Quality Prediction"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 We want to predict Classe variable based on available data. 
