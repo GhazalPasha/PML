@@ -1,0 +1,57 @@
+---
+title: "Activity Quality Prediction"
+output: html_document
+---
+
+We want to predict Classe variable based on available data. 
+
+##Reading and Cleaning Data
+First step is to load the data sets. 
+
+```{R}
+library(caret)
+pmlTraining <- read.csv("pml-training.csv",header = TRUE, na.strings=c("NA",""))
+pmlTesting <- read.csv("pml-testing.csv",header = TRUE, na.strings=c("NA",""))
+```
+
+Many columns are empty or mostly NA. We want to remove these columns from our modeling. In addition the first six columns are time and user information which we don't need in our model.
+
+```{R}
+remove <-pmlTraining[,colSums(is.na(pmlTraining)) == 0] 
+build <- pmlTraining[,colSums(is.na(pmlTraining)) == 0]
+build <- build[,-(1:6)]
+test <- pmlTesting[,colSums(is.na(pmlTraining)) == 0] 
+test <- test[,-(1:6)]
+```
+
+The next step is to divide data to training and validating sets. 
+```{R}
+trainIndex = createDataPartition(build$classe, p = 0.7,list=FALSE)
+training = build[trainIndex,]
+validating = build[-trainIndex,]
+```
+
+##Fitting a Model
+We fit a model to the training data set using random forest method.
+
+```{R}
+rfFit <- train(classe ~ ., data=training, method="rf")
+```
+
+Now we use this model to predict Classe in validating data set and get the out of sample accuracy rate from the confusion matrix.
+
+```{R}
+confusionMatrix(validating$classe, predict(rfFit, validating))
+```
+As we can see in the confusion matrix output, accuracy is 0.9981.
+
+##Predicting
+The final step is to use the model to predict outcome for test data set.
+```{R}
+predict(rfFit,test)
+```
+
+
+
+
+
